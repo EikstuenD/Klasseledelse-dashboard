@@ -693,6 +693,33 @@
       background: #020617;
     }
 
+    .teacher-toggle-floating {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 50;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: var(--text);
+      font-weight: 900;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    body.hidden-ui .teacher-toggle-floating {
+      opacity: 0.35;
+      pointer-events: auto;
+    }
+
+    body.hidden-ui .teacher-toggle-floating:hover {
+      opacity: 1;
+      background: rgba(15, 23, 42, 0.95);
+    }
+
     .hidden-ui .sidebar, .hidden-ui .topbar {
       display: none;
     }
@@ -750,6 +777,8 @@
   </style>
 </head>
 <body>
+  <button class="teacher-toggle-floating" id="floatingTeacherToggle" title="Vis lærerpanel">☰ Lærerpanel</button>
+
   <aside class="sidebar" id="sidebar">
     <div class="brand">
       <h1>Klasseledelse</h1>
@@ -1468,9 +1497,12 @@ Victoria</textarea>
     document.getElementById('makeGroups4').addEventListener('click', () => makeGroups('groups4'));
     document.getElementById('makeGroups6').addEventListener('click', () => makeGroups('sixgroups'));
 
-    document.getElementById('toggleUi').addEventListener('click', () => {
+    function toggleTeacherPanel() {
       body.classList.toggle('hidden-ui');
-    });
+    }
+
+    document.getElementById('toggleUi').addEventListener('click', toggleTeacherPanel);
+    document.getElementById('floatingTeacherToggle').addEventListener('click', toggleTeacherPanel);
 
     window.addEventListener('hashchange', handleHash);
 
@@ -1479,7 +1511,7 @@ Victoria</textarea>
       const typing = ['input', 'textarea', 'select'].includes(tag);
 
       if (event.key === 'Escape') {
-        body.classList.toggle('hidden-ui');
+        toggleTeacherPanel();
         return;
       }
 
