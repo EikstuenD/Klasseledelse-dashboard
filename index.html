@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Klasseledelse</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-soft: #1e293b;
+      --card: rgba(255, 255, 255, 0.09);
+      --card-strong: rgba(255, 255, 255, 0.16);
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --accent: #38bdf8;
+      --accent-2: #a78bfa;
+      --green: #22c55e;
+      --yellow: #facc15;
+      --orange: #fb923c;
+      --red: #ef4444;
+      --shadow: 0 20px 60px rgba(0,0,0,0.35);
+      --radius: 28px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #1e40af 0, transparent 28%),
+                  radial-gradient(circle at bottom right, #7c3aed 0, transparent 26%),
+                  var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    body {
+      height: 100vh;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: 0;
+      color: var(--text);
+      border-radius: 16px;
+      background: var(--card);
+      transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    button:hover {
+      background: var(--card-strong);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .sidebar {
+      height: 100vh;
+      padding: 18px;
+      background: rgba(15, 23, 42, 0.86);
+      backdrop-filter: blur(16px);
+      border-right: 1px solid rgba(255,255,255,0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow-y: auto;
+    }
+
+    .brand {
+      padding: 14px 14px 8px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.55rem;
+      letter-spacing: -0.03em;
+    }
+
+    .brand p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .nav-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      width: 100%;
+      text-align: left;
+      padding: 13px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 750;
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(135deg, rgba(56,189,248,0.35), rgba(167,139,250,0.28));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16);
+    }
+
+    .small-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      margin: 12px 6px 2px;
+      font-weight: 800;
+    }
+
+    .control-card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.11);
+      border-radius: 22px;
+      padding: 12px;
+    }
+
+    .control-card h2 {
+      margin: 0 0 10px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .timer-buttons, .level-buttons, .mode-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+
+    .timer-buttons button, .level-buttons button, .mode-buttons button {
+      padding: 10px 6px;
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+
+    .message-input, .small-input, textarea {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(15,23,42,0.6);
+      color: var(--text);
+      border-radius: 16px;
+      padding: 11px 12px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .inline-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .inline-row > * {
+      flex: 1;
+    }
+
+    .main {
+      height: 100vh;
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      min-height: 54px;
+    }
+
+    .status-pills {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.13);
+      padding: 10px 14px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .pill strong {
+      color: var(--text);
+    }
+
+    .clock {
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      font-weight: 800;
+      background: rgba(255,255,255,0.1);
+      padding: 10px 14px;
+      border-radius: 999px;
+    }
+
+    .screen {
+      flex: 1;
+      display: none;
+      min-height: 0;
+    }
+
+    .screen.active {
+      display: grid;
+    }
+
+    .hero {
+      height: 100%;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(15,23,42,0.72), rgba(30,41,59,0.76));
+      border: 1px solid rgba(255,255,255,0.13);
+      box-shadow: var(--shadow);
+      padding: clamp(24px, 4vw, 56px);
+      display: grid;
+      gap: 22px;
+      align-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -15% -30% auto;
+      width: 420px;
+      height: 420px;
+      background: radial-gradient(circle, rgba(56,189,248,0.22), transparent 68%);
+      pointer-events: none;
+    }
+
+    .kicker {
+      color: var(--accent);
+      font-size: clamp(1rem, 1.4vw, 1.35rem);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 900;
+    }
+
+    .title {
+      margin: 0;
+      font-size: clamp(3rem, 7.2vw, 8.6rem);
+      line-height: 0.95;
+      letter-spacing: -0.07em;
+    }
+
+    .subtitle {
+      font-size: clamp(1.35rem, 2.2vw, 2.3rem);
+      color: var(--muted);
+      line-height: 1.25;
+      max-width: 1100px;
+      margin: 0;
+    }
+
+    .big-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 10px;
+    }
+
+    .list-card {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 24px;
+      font-size: clamp(1.4rem, 2.2vw, 2.7rem);
+      font-weight: 900;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .number {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      background: rgba(56,189,248,0.2);
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      color: #bae6fd;
+    }
+
+    .message-screen .hero {
+      align-content: stretch;
+    }
+
+    .message-box {
+      height: 100%;
+      display: grid;
+      align-content: center;
+      gap: 26px;
+    }
+
+    .message-type {
+      justify-self: start;
+      background: rgba(56,189,248,0.18);
+      color: #e0f2fe;
+      border: 1px solid rgba(186,230,253,0.25);
+      padding: 14px 20px;
+      border-radius: 999px;
+      font-size: clamp(1rem, 1.6vw, 1.4rem);
+      font-weight: 900;
+    }
+
+    .big-message {
+      font-size: clamp(3rem, 8vw, 9.8rem);
+      line-height: 0.98;
+      letter-spacing: -0.06em;
+      font-weight: 950;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .timer-layout {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 26px;
+      height: 100%;
+    }
+
+    .timer-display {
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+
+    .timer-time {
+      font-size: clamp(5rem, 16vw, 18rem);
+      line-height: 0.8;
+      font-weight: 950;
+      letter-spacing: -0.09em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer-caption {
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: clamp(1.3rem, 2.4vw, 2.8rem);
+      font-weight: 800;
+    }
+
+    .timer-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 24px;
+      max-width: 640px;
+      justify-self: center;
+    }
+
+    .timer-actions button {
+      padding: 16px;
+      font-weight: 900;
+      font-size: 1.1rem;
+    }
+
+    .side-panel-large {
+      display: grid;
+      align-content: center;
+      gap: 18px;
+    }
+
+    .info-card {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 26px;
+      padding: 24px;
+    }
+
+    .info-card .label {
+      color: var(--muted);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+
+    .info-card .value {
+      font-size: clamp(1.8rem, 3vw, 3.6rem);
+      font-weight: 950;
+      line-height: 1;
+    }
+
+    .mode-grid-large {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .mode-tile {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 30px;
+      padding: 34px 24px;
+      min-height: 180px;
+      display: grid;
+      align-content: center;
+      text-align: center;
+      gap: 14px;
+    }
+
+    .mode-tile .emoji {
+      font-size: clamp(2rem, 4vw, 4.5rem);
+    }
+
+    .mode-tile h3 {
+      margin: 0;
+      font-size: clamp(1.6rem, 2.6vw, 3.2rem);
+      letter-spacing: -0.04em;
+    }
+
+    .mode-tile.active-mode {
+      background: linear-gradient(135deg, rgba(56,189,248,0.34), rgba(167,139,250,0.25));
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.24);
+    }
+
+    .noise-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+    }
+
+    .noise-card {
+      min-height: 260px;
+      border-radius: 30px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.13);
+      padding: 22px;
+      display: grid;
+      align-content: center;
+      text-align: center;
+      gap: 18px;
+    }
+
+    .noise-card.active-noise {
+      background: linear-gradient(135deg, rgba(34,197,94,0.34), rgba(56,189,248,0.2));
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.24);
+    }
+
+    .noise-number {
+      width: 86px;
+      height: 86px;
+      border-radius: 28px;
+      background: rgba(255,255,255,0.14);
+      display: grid;
+      place-items: center;
+      font-size: 3.4rem;
+      font-weight: 950;
+      margin: 0 auto;
+    }
+
+    .noise-card h3 {
+      margin: 0;
+      font-size: clamp(1.1rem, 2vw, 2.2rem);
+    }
+
+    .noise-card p {
+      margin: 0;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: clamp(0.9rem, 1.2vw, 1.3rem);
+    }
+
+    .done-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      height: 100%;
+    }
+
+    .todo-list {
+      display: grid;
+      gap: 14px;
+      align-content: center;
+    }
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 26px;
+      padding: 20px 24px;
+      font-size: clamp(1.4rem, 2.2vw, 2.6rem);
+      font-weight: 900;
+    }
+
+    .check {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: rgba(34,197,94,0.25);
+      color: #bbf7d0;
+      flex: 0 0 auto;
+    }
+
+    .cleanup-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .cleanup-card {
+      border-radius: 30px;
+      padding: 24px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.13);
+      display: grid;
+      align-content: start;
+      gap: 14px;
+    }
+
+    .cleanup-card.active-cleanup {
+      background: linear-gradient(135deg, rgba(250,204,21,0.25), rgba(251,146,60,0.18));
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.24);
+    }
+
+    .cleanup-card h3 {
+      margin: 0;
+      font-size: clamp(1.4rem, 2.2vw, 2.7rem);
+      letter-spacing: -0.04em;
+    }
+
+    .cleanup-card ul {
+      margin: 0;
+      padding-left: 1.2em;
+      color: var(--muted);
+      font-size: clamp(1rem, 1.25vw, 1.35rem);
+      line-height: 1.5;
+      font-weight: 700;
+    }
+
+    .random-box {
+      display: grid;
+      place-items: center;
+      text-align: center;
+      gap: 28px;
+    }
+
+    .random-name {
+      font-size: clamp(4rem, 10vw, 12rem);
+      font-weight: 950;
+      line-height: 0.95;
+      letter-spacing: -0.08em;
+      min-height: 0.95em;
+    }
+
+    .random-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .random-actions button, .primary {
+      padding: 18px 24px;
+      background: linear-gradient(135deg, rgba(56,189,248,0.42), rgba(167,139,250,0.32));
+      font-size: 1.1rem;
+      font-weight: 900;
+    }
+
+    .groups-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      align-content: start;
+    }
+
+    .group-card {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 26px;
+      padding: 20px;
+      min-height: 180px;
+    }
+
+    .group-card h3 {
+      margin: 0 0 12px;
+      font-size: clamp(1.3rem, 2vw, 2.2rem);
+    }
+
+    .group-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 1.3vw, 1.5rem);
+      line-height: 1.5;
+      font-weight: 750;
+    }
+
+    .points-wrap {
+      display: grid;
+      place-items: center;
+      text-align: center;
+      gap: 30px;
+    }
+
+    .points-display {
+      display: flex;
+      gap: 22px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .star {
+      width: clamp(70px, 9vw, 130px);
+      height: clamp(70px, 9vw, 130px);
+      display: grid;
+      place-items: center;
+      border-radius: 34px;
+      background: rgba(255,255,255,0.11);
+      border: 1px solid rgba(255,255,255,0.14);
+      font-size: clamp(2.5rem, 5vw, 5rem);
+      filter: grayscale(1);
+      opacity: 0.35;
+    }
+
+    .star.filled {
+      filter: none;
+      opacity: 1;
+      background: rgba(250,204,21,0.22);
+    }
+
+    .help-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      align-content: center;
+    }
+
+    .help-card {
+      min-height: 380px;
+      border-radius: 34px;
+      padding: 32px;
+      display: grid;
+      align-content: center;
+      text-align: center;
+      gap: 20px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.13);
+    }
+
+    .help-card.active-help {
+      box-shadow: inset 0 0 0 3px rgba(255,255,255,0.26);
+      background: linear-gradient(135deg, rgba(34,197,94,0.32), rgba(56,189,248,0.18));
+    }
+
+    .help-icon {
+      font-size: clamp(4rem, 8vw, 9rem);
+    }
+
+    .help-card h3 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3vw, 3.8rem);
+      line-height: 1;
+    }
+
+    .help-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 1.5vw, 1.7rem);
+      font-weight: 750;
+    }
+
+    .blank .hero {
+      background: #020617;
+    }
+
+    .hidden-ui .sidebar, .hidden-ui .topbar {
+      display: none;
+    }
+
+    body.hidden-ui {
+      grid-template-columns: 1fr;
+    }
+
+    body.hidden-ui .main {
+      padding: 0;
+    }
+
+    body.hidden-ui .hero {
+      border-radius: 0;
+      border: 0;
+    }
+
+    .tiny-note {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.35;
+      margin: 6px 4px 0;
+    }
+
+    @media (max-width: 1000px) {
+      body {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: fixed;
+        z-index: 10;
+        inset: 0 auto 0 0;
+        width: 310px;
+        transform: translateX(-100%);
+        transition: transform 0.2s ease;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main {
+        padding: 18px;
+      }
+
+      .big-list, .timer-layout, .done-layout, .help-grid, .mode-grid-large, .noise-grid, .cleanup-options, .groups-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .noise-card, .help-card {
+        min-height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <h1>Klasseledelse</h1>
+      <p>Dashboard for tavle, projektor og Stream Deck.</p>
+    </div>
+
+    <div class="small-label">Visning</div>
+    <nav class="nav-grid" id="nav">
+      <button class="nav-btn" data-screen="start">🌅 Start time</button>
+      <button class="nav-btn" data-screen="message">📣 Beskjed</button>
+      <button class="nav-btn" data-screen="timer">⏱️ Timer</button>
+      <button class="nav-btn" data-screen="noise">🔊 Lydnivå</button>
+      <button class="nav-btn" data-screen="workmode">🧠 Arbeidsform</button>
+      <button class="nav-btn" data-screen="done">✅ Når du er ferdig</button>
+      <button class="nav-btn" data-screen="transition">🔄 Overgang</button>
+      <button class="nav-btn" data-screen="cleanup">🧹 Rydding</button>
+      <button class="nav-btn" data-screen="focus">👀 Fokus</button>
+      <button class="nav-btn" data-screen="random">🎲 Trekning</button>
+      <button class="nav-btn" data-screen="groups">👥 Grupper</button>
+      <button class="nav-btn" data-screen="points">⭐ Klassepoeng</button>
+      <button class="nav-btn" data-screen="help">🚦 Hjelp/status</button>
+      <button class="nav-btn" data-screen="blank">⬛ Blank skjerm</button>
+    </nav>
+
+    <div class="small-label">Beskjed</div>
+    <div class="control-card">
+      <h2>Tekst på tavla</h2>
+      <select id="messageType" class="small-input" aria-label="Type beskjed">
+        <option>Vanlig beskjed</option>
+        <option>Viktig beskjed</option>
+        <option>Ny aktivitet</option>
+        <option>Lekse</option>
+        <option>Husk dette</option>
+      </select>
+      <div style="height:8px"></div>
+      <textarea id="messageText" placeholder="Skriv beskjed her...">Ta fram riktig utstyr og gjør deg klar.</textarea>
+      <div style="height:8px"></div>
+      <button class="primary" style="width:100%" data-screen="message">Vis beskjed</button>
+    </div>
+
+    <div class="small-label">Timer</div>
+    <div class="control-card">
+      <h2>Ferdige tider</h2>
+      <div class="timer-buttons">
+        <button data-min="2">2</button>
+        <button data-min="5">5</button>
+        <button data-min="10">10</button>
+        <button data-min="15">15</button>
+        <button data-min="20">20</button>
+        <button data-min="45">45</button>
+      </div>
+      <div style="height:8px"></div>
+      <div class="inline-row">
+        <input id="customMinutes" class="small-input" type="number" min="1" max="180" value="8" />
+        <button id="setCustomTimer">Sett</button>
+      </div>
+      <p class="tiny-note">Mellomrom starter/pauser timeren, men ikke når du skriver i tekstfelt.</p>
+    </div>
+
+    <div class="small-label">Rask styring</div>
+    <div class="control-card">
+      <h2>Arbeidsform</h2>
+      <div class="mode-buttons">
+        <button data-mode="Individuelt">Alene</button>
+        <button data-mode="Par">Par</button>
+        <button data-mode="Gruppe">Gruppe</button>
+        <button data-mode="Felles">Felles</button>
+        <button data-mode="Lærer viser">Viser</button>
+        <button data-mode="Stasjoner">Stasjon</button>
+      </div>
+      <div style="height:10px"></div>
+      <h2>Lydnivå</h2>
+      <div class="level-buttons">
+        <button data-noise="0">0</button>
+        <button data-noise="1">1</button>
+        <button data-noise="2">2</button>
+        <button data-noise="3">3</button>
+        <button data-noise="4">4</button>
+      </div>
+    </div>
+
+    <div class="small-label">Elevliste</div>
+    <div class="control-card">
+      <h2>Én elev per linje</h2>
+      <textarea id="studentList">Asta
+Bao
+Celine
+David
+Debra
+Dennis
+Eliana
+Gustav
+Inga
+Jacob
+Jenny
+Larisa
+Mathias
+Mattis
+Olivia
+Sebastian
+Selma
+Sondre
+Victoria</textarea>
+      <div style="height:8px"></div>
+      <button id="saveStudents" style="width:100%">Lagre elevliste</button>
+    </div>
+
+    <div class="small-label">Skjerm</div>
+    <div class="control-card">
+      <button id="toggleUi" style="width:100%; padding:12px; font-weight:900;">Skjul/vis lærerpanel</button>
+      <p class="tiny-note">Bruk gjerne denne før du viser siden på projektor.</p>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="status-pills">
+        <div class="pill">Arbeidsform: <strong id="pillMode">Individuelt</strong></div>
+        <div class="pill">Lydnivå: <strong id="pillNoise">1 – Hviskestemme</strong></div>
+        <div class="pill">Poeng: <strong id="pillPoints">0/5</strong></div>
+      </div>
+      <div class="clock" id="clock">--:--</div>
+    </header>
+
+    <section class="screen active" id="screen-start">
+      <div class="hero">
+        <div class="kicker">Start av timen</div>
+        <h2 class="title">Velkommen inn</h2>
+        <p class="subtitle">Gjør deg klar til å starte rolig og effektivt.</p>
+        <div class="big-list">
+          <div class="list-card"><span class="number">1</span>Finn plassen din</div>
+          <div class="list-card"><span class="number">2</span>Ta fram riktig utstyr</div>
+          <div class="list-card"><span class="number">3</span>Åpne riktig bok/nettside</div>
+          <div class="list-card"><span class="number">4</span>Start på oppgaven på tavla</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen message-screen" id="screen-message">
+      <div class="hero">
+        <div class="message-box">
+          <div class="message-type" id="messageTypeDisplay">Vanlig beskjed</div>
+          <div class="big-message" id="messageDisplay">Ta fram riktig utstyr og gjør deg klar.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-timer">
+      <div class="hero">
+        <div class="timer-layout">
+          <div class="timer-display">
+            <div>
+              <div class="kicker">Arbeidsøkt</div>
+              <div class="timer-time" id="timerDisplay">08:00</div>
+              <div class="timer-caption" id="timerCaption">Trykk start når alle er klare</div>
+              <div class="timer-actions">
+                <button id="timerStartPause">Start</button>
+                <button id="timerReset">Reset</button>
+                <button id="timerPlus">+1 min</button>
+              </div>
+            </div>
+          </div>
+          <div class="side-panel-large">
+            <div class="info-card">
+              <div class="label">Arbeidsform</div>
+              <div class="value" id="timerMode">Individuelt</div>
+            </div>
+            <div class="info-card">
+              <div class="label">Lydnivå</div>
+              <div class="value" id="timerNoise">1 – Hviskestemme</div>
+            </div>
+            <div class="info-card">
+              <div class="label">Når du er ferdig</div>
+              <div class="value" style="font-size:clamp(1.4rem,2.3vw,2.8rem)">Sjekk svaret ditt og gå videre med ekstraoppgave.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-noise">
+      <div class="hero">
+        <div>
+          <div class="kicker">Lydnivå</div>
+          <h2 class="title">Hvordan snakker vi nå?</h2>
+        </div>
+        <div class="noise-grid" id="noiseGrid"></div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-workmode">
+      <div class="hero">
+        <div>
+          <div class="kicker">Arbeidsform</div>
+          <h2 class="title">Slik jobber vi nå</h2>
+        </div>
+        <div class="mode-grid-large" id="workModeGrid"></div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-done">
+      <div class="hero">
+        <div class="done-layout">
+          <div>
+            <div class="kicker">Når du er ferdig</div>
+            <h2 class="title">Gjør dette</h2>
+            <p class="subtitle">Ikke vent passivt. Velg neste steg.</p>
+          </div>
+          <div class="todo-list">
+            <div class="todo-item"><span class="check">✓</span>Sjekk svaret ditt</div>
+            <div class="todo-item"><span class="check">✓</span>Gjør neste oppgave</div>
+            <div class="todo-item"><span class="check">✓</span>Hjelp sidemannen rolig</div>
+            <div class="todo-item"><span class="check">✓</span>Les videre eller jobb med ekstraoppgave</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-transition">
+      <div class="hero">
+        <div class="kicker">Overgang</div>
+        <h2 class="title">Ny aktivitet</h2>
+        <p class="subtitle">Stopp det du gjør. Lukk skjerm/bok hvis du får beskjed. Se mot tavla og vent rolig.</p>
+        <div class="big-list">
+          <div class="list-card"><span class="number">1</span>Stopp</div>
+          <div class="list-card"><span class="number">2</span>Se mot tavla</div>
+          <div class="list-card"><span class="number">3</span>Lytt</div>
+          <div class="list-card"><span class="number">4</span>Gjør deg klar</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-cleanup">
+      <div class="hero">
+        <div>
+          <div class="kicker">Slutten av timen</div>
+          <h2 class="title">Rydding</h2>
+          <p class="subtitle">Velg hvor nøye vi skal rydde akkurat nå.</p>
+        </div>
+        <div class="cleanup-options" id="cleanupGrid"></div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-focus">
+      <div class="hero">
+        <div class="kicker">Fokus</div>
+        <h2 class="title">3 ting nå</h2>
+        <div class="big-list">
+          <div class="list-card"><span class="number">1</span>Stopp det du gjør</div>
+          <div class="list-card"><span class="number">2</span>Se mot tavla</div>
+          <div class="list-card"><span class="number">3</span>Lytt</div>
+          <div class="list-card"><span class="number">4</span>Vent rolig</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-random">
+      <div class="hero">
+        <div class="random-box">
+          <div>
+            <div class="kicker">Trekning</div>
+            <h2 class="title">Tilfeldig elev</h2>
+          </div>
+          <div class="random-name" id="randomName">Klar?</div>
+          <div class="random-actions">
+            <button id="drawStudent">Trekk elev</button>
+            <button id="resetDraws">Nullstill runde</button>
+          </div>
+          <p class="subtitle" id="drawInfo">Elever trekkes én gang før runden starter på nytt.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-groups">
+      <div class="hero">
+        <div>
+          <div class="kicker">Grupper</div>
+          <h2 class="title">Arbeidsgrupper</h2>
+          <p class="subtitle">Lag grupper fra elevlista. Brukes til gruppearbeid, stasjoner eller læringspar.</p>
+        </div>
+        <div class="random-actions" style="justify-content:flex-start">
+          <button id="makePairs">Lag par</button>
+          <button id="makeGroups4">Grupper på 4</button>
+          <button id="makeGroups6">6 grupper</button>
+        </div>
+        <div class="groups-grid" id="groupsGrid"></div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-points">
+      <div class="hero">
+        <div class="points-wrap">
+          <div>
+            <div class="kicker">Klassepoeng</div>
+            <h2 class="title">Samarbeidspoeng</h2>
+            <p class="subtitle">Når klassen når 5 poeng: velg en avtalt belønning.</p>
+          </div>
+          <div class="points-display" id="pointsDisplay"></div>
+          <div class="random-actions">
+            <button id="addPoint">+ Poeng</button>
+            <button id="removePoint">− Poeng</button>
+            <button id="resetPoints">Nullstill</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-help">
+      <div class="hero">
+        <div>
+          <div class="kicker">Hjelp og lærerstatus</div>
+          <h2 class="title">Hva gjør du nå?</h2>
+        </div>
+        <div class="help-grid" id="helpGrid"></div>
+      </div>
+    </section>
+
+    <section class="screen blank" id="screen-blank">
+      <div class="hero"></div>
+    </section>
+  </main>
+
+  <script>
+    const screens = [...document.querySelectorAll('.screen')];
+    const navButtons = [...document.querySelectorAll('.nav-btn')];
+    const body = document.body;
+
+    const messageText = document.getElementById('messageText');
+    const messageType = document.getElementById('messageType');
+    const messageDisplay = document.getElementById('messageDisplay');
+    const messageTypeDisplay = document.getElementById('messageTypeDisplay');
+
+    const pillMode = document.getElementById('pillMode');
+    const pillNoise = document.getElementById('pillNoise');
+    const pillPoints = document.getElementById('pillPoints');
+    const timerMode = document.getElementById('timerMode');
+    const timerNoise = document.getElementById('timerNoise');
+
+    const noiseLevels = [
+      { level: 0, title: 'Helt stille', desc: 'Ingen prat. Øyne på egen oppgave.' },
+      { level: 1, title: 'Hviskestemme', desc: 'Lav stemme bare til sidemannen.' },
+      { level: 2, title: 'Lav samtale', desc: 'Rolig prat med partner eller bord.' },
+      { level: 3, title: 'Gruppearbeid', desc: 'Samarbeid, men ikke rop.' },
+      { level: 4, title: 'Felles', desc: 'Én snakker. Alle andre lytter.' }
+    ];
+
+    const workModes = [
+      { name: 'Individuelt', emoji: '🧍' },
+      { name: 'Par', emoji: '👥' },
+      { name: 'Gruppe', emoji: '🧑‍🤝‍🧑' },
+      { name: 'Felles', emoji: '🗣️' },
+      { name: 'Lærer viser', emoji: '👨‍🏫' },
+      { name: 'Stasjoner', emoji: '🔁' },
+      { name: 'Prøve/vurdering', emoji: '📝' },
+      { name: 'Lesing', emoji: '📖' },
+      { name: 'Praktisk arbeid', emoji: '🛠️' }
+    ];
+
+    const cleanupModes = [
+      {
+        name: 'Rask',
+        items: ['Pakk ned sakene dine', 'Rydd det som ligger synlig', 'Sjekk lekse', 'Vent rolig']
+      },
+      {
+        name: 'Vanlig',
+        items: ['Pakk i sekk eller hylle', 'Rydd på, under og rundt pulten', 'Sjekk lekse', 'Sett opp stol']
+      },
+      {
+        name: 'Ekstra nøye',
+        items: ['Rydd egen plass grundig', 'Plukk søppel rundt deg', 'Sett utstyr tilbake', 'Sett opp stol og still bak pulten']
+      }
+    ];
+
+    const helpModes = [
+      { key: 'green', icon: '🟢', title: 'Jobb videre', desc: 'Prøv selv først. Bruk boka, notater eller eksempel.' },
+      { key: 'yellow', icon: '🟡', title: 'Spør sidemannen', desc: 'Sjekk med partner før du spør lærer.' },
+      { key: 'red', icon: '🔴', title: 'Vent på lærer', desc: 'Rekk opp hånda. Jeg kommer rundt.' }
+    ];
+
+    let currentScreen = 'start';
+    let currentMode = localStorage.getItem('classMode') || 'Individuelt';
+    let currentNoise = Number(localStorage.getItem('classNoise') || 1);
+    let cleanupMode = localStorage.getItem('cleanupMode') || 'Vanlig';
+    let helpMode = localStorage.getItem('helpMode') || 'green';
+    let points = Number(localStorage.getItem('points') || 0);
+
+    let timerInitial = Number(localStorage.getItem('timerInitial') || 8 * 60);
+    let timerRemaining = timerInitial;
+    let timerRunning = false;
+    let timerInterval = null;
+
+    let students = (localStorage.getItem('students') || document.getElementById('studentList').value)
+      .split('\n')
+      .map(s => s.trim())
+      .filter(Boolean);
+    let drawn = JSON.parse(localStorage.getItem('drawnStudents') || '[]');
+
+    function showScreen(name, updateHash = true) {
+      currentScreen = name;
+      screens.forEach(screen => screen.classList.toggle('active', screen.id === `screen-${name}`));
+      navButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.screen === name));
+      if (updateHash) history.replaceState(null, '', `#${name}`);
+      if (window.innerWidth <= 1000) document.getElementById('sidebar').classList.remove('open');
+    }
+
+    function syncMessage() {
+      const text = messageText.value.trim() || 'Skriv en beskjed i lærerfeltet.';
+      messageDisplay.textContent = text;
+      messageTypeDisplay.textContent = messageType.value;
+      localStorage.setItem('messageText', messageText.value);
+      localStorage.setItem('messageType', messageType.value);
+    }
+
+    function noiseLabel(level) {
+      const found = noiseLevels.find(n => n.level === Number(level));
+      return `${found.level} – ${found.title}`;
+    }
+
+    function setNoise(level) {
+      currentNoise = Number(level);
+      localStorage.setItem('classNoise', currentNoise);
+      renderNoise();
+      updateStatus();
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      localStorage.setItem('classMode', currentMode);
+      renderWorkModes();
+      updateStatus();
+    }
+
+    function updateStatus() {
+      pillMode.textContent = currentMode;
+      pillNoise.textContent = noiseLabel(currentNoise);
+      pillPoints.textContent = `${points}/5`;
+      timerMode.textContent = currentMode;
+      timerNoise.textContent = noiseLabel(currentNoise);
+    }
+
+    function renderNoise() {
+      const grid = document.getElementById('noiseGrid');
+      grid.innerHTML = noiseLevels.map(n => `
+        <button class="noise-card ${n.level === currentNoise ? 'active-noise' : ''}" data-set-noise="${n.level}">
+          <div class="noise-number">${n.level}</div>
+          <h3>${n.title}</h3>
+          <p>${n.desc}</p>
+        </button>
+      `).join('');
+      grid.querySelectorAll('[data-set-noise]').forEach(btn => {
+        btn.addEventListener('click', () => setNoise(btn.dataset.setNoise));
+      });
+    }
+
+    function renderWorkModes() {
+      const grid = document.getElementById('workModeGrid');
+      grid.innerHTML = workModes.map(m => `
+        <button class="mode-tile ${m.name === currentMode ? 'active-mode' : ''}" data-set-mode="${m.name}">
+          <div class="emoji">${m.emoji}</div>
+          <h3>${m.name}</h3>
+        </button>
+      `).join('');
+      grid.querySelectorAll('[data-set-mode]').forEach(btn => {
+        btn.addEventListener('click', () => setMode(btn.dataset.setMode));
+      });
+    }
+
+    function renderCleanup() {
+      const grid = document.getElementById('cleanupGrid');
+      grid.innerHTML = cleanupModes.map(mode => `
+        <button class="cleanup-card ${mode.name === cleanupMode ? 'active-cleanup' : ''}" data-cleanup="${mode.name}">
+          <h3>${mode.name}</h3>
+          <ul>${mode.items.map(i => `<li>${i}</li>`).join('')}</ul>
+        </button>
+      `).join('');
+      grid.querySelectorAll('[data-cleanup]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          cleanupMode = btn.dataset.cleanup;
+          localStorage.setItem('cleanupMode', cleanupMode);
+          renderCleanup();
+        });
+      });
+    }
+
+    function renderHelp() {
+      const grid = document.getElementById('helpGrid');
+      grid.innerHTML = helpModes.map(h => `
+        <button class="help-card ${h.key === helpMode ? 'active-help' : ''}" data-help="${h.key}">
+          <div class="help-icon">${h.icon}</div>
+          <h3>${h.title}</h3>
+          <p>${h.desc}</p>
+        </button>
+      `).join('');
+      grid.querySelectorAll('[data-help]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          helpMode = btn.dataset.help;
+          localStorage.setItem('helpMode', helpMode);
+          renderHelp();
+        });
+      });
+    }
+
+    function formatTime(seconds) {
+      const safe = Math.max(0, seconds);
+      const m = Math.floor(safe / 60).toString().padStart(2, '0');
+      const s = Math.floor(safe % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function renderTimer() {
+      const display = document.getElementById('timerDisplay');
+      const caption = document.getElementById('timerCaption');
+      display.textContent = formatTime(timerRemaining);
+      document.getElementById('timerStartPause').textContent = timerRunning ? 'Pause' : 'Start';
+
+      const ratio = timerInitial ? timerRemaining / timerInitial : 1;
+      if (timerRemaining <= 0) {
+        caption.textContent = 'Tiden er ute';
+        display.style.color = 'var(--red)';
+      } else if (ratio < 0.18) {
+        caption.textContent = 'Avslutt det du holder på med';
+        display.style.color = 'var(--orange)';
+      } else if (ratio < 0.35) {
+        caption.textContent = 'Jobb mot en god avslutning';
+        display.style.color = 'var(--yellow)';
+      } else {
+        caption.textContent = timerRunning ? 'Arbeidsro' : 'Trykk start når alle er klare';
+        display.style.color = 'var(--text)';
+      }
+    }
+
+    function setTimer(minutes) {
+      timerInitial = Math.max(1, Number(minutes)) * 60;
+      timerRemaining = timerInitial;
+      timerRunning = false;
+      clearInterval(timerInterval);
+      localStorage.setItem('timerInitial', timerInitial);
+      renderTimer();
+      showScreen('timer');
+    }
+
+    function toggleTimer() {
+      if (timerRunning) {
+        timerRunning = false;
+        clearInterval(timerInterval);
+      } else {
+        timerRunning = true;
+        timerInterval = setInterval(() => {
+          timerRemaining -= 1;
+          if (timerRemaining <= 0) {
+            timerRemaining = 0;
+            timerRunning = false;
+            clearInterval(timerInterval);
+          }
+          renderTimer();
+        }, 1000);
+      }
+      renderTimer();
+    }
+
+    function resetTimer() {
+      timerRemaining = timerInitial;
+      timerRunning = false;
+      clearInterval(timerInterval);
+      renderTimer();
+    }
+
+    function renderPoints() {
+      const wrap = document.getElementById('pointsDisplay');
+      points = Math.max(0, Math.min(5, points));
+      localStorage.setItem('points', points);
+      wrap.innerHTML = Array.from({ length: 5 }, (_, i) => `<div class="star ${i < points ? 'filled' : ''}">⭐</div>`).join('');
+      updateStatus();
+    }
+
+    function getStudents() {
+      return (document.getElementById('studentList').value || '')
+        .split('\n')
+        .map(s => s.trim())
+        .filter(Boolean);
+    }
+
+    function saveStudents() {
+      students = getStudents();
+      localStorage.setItem('students', students.join('\n'));
+      drawn = [];
+      localStorage.setItem('drawnStudents', JSON.stringify(drawn));
+      document.getElementById('drawInfo').textContent = `${students.length} elever lagret.`;
+    }
+
+    function drawStudent() {
+      students = getStudents();
+      let available = students.filter(s => !drawn.includes(s));
+      if (available.length === 0) {
+        drawn = [];
+        available = [...students];
+      }
+      if (available.length === 0) {
+        document.getElementById('randomName').textContent = 'Ingen elever';
+        return;
+      }
+      const chosen = available[Math.floor(Math.random() * available.length)];
+      drawn.push(chosen);
+      localStorage.setItem('drawnStudents', JSON.stringify(drawn));
+      document.getElementById('randomName').textContent = chosen;
+      document.getElementById('drawInfo').textContent = `${students.length - drawn.length} igjen før ny runde.`;
+    }
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function makeGroups(type) {
+      const list = shuffle(getStudents());
+      let groups = [];
+      if (type === 'pairs') {
+        for (let i = 0; i < list.length; i += 2) groups.push(list.slice(i, i + 2));
+      }
+      if (type === 'groups4') {
+        for (let i = 0; i < list.length; i += 4) groups.push(list.slice(i, i + 4));
+      }
+      if (type === 'sixgroups') {
+        groups = Array.from({ length: 6 }, () => []);
+        list.forEach((student, index) => groups[index % 6].push(student));
+      }
+      renderGroups(groups);
+      showScreen('groups');
+    }
+
+    function renderGroups(groups) {
+      const grid = document.getElementById('groupsGrid');
+      grid.innerHTML = groups.map((group, index) => `
+        <div class="group-card">
+          <h3>Gruppe ${index + 1}</h3>
+          <p>${group.join('<br>')}</p>
+        </div>
+      `).join('');
+    }
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleTimeString('no-NO', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function handleHash() {
+      const hash = location.hash.replace('#', '');
+      if (!hash) return showScreen('start', false);
+
+      if (hash.startsWith('timer')) {
+        const minutes = Number(hash.replace('timer', ''));
+        if (minutes) setTimer(minutes);
+        else showScreen('timer', false);
+        return;
+      }
+
+      if (document.getElementById(`screen-${hash}`)) showScreen(hash, false);
+    }
+
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => showScreen(btn.dataset.screen));
+    });
+
+    document.querySelectorAll('[data-screen]').forEach(btn => {
+      btn.addEventListener('click', () => showScreen(btn.dataset.screen));
+    });
+
+    document.querySelectorAll('[data-min]').forEach(btn => {
+      btn.addEventListener('click', () => setTimer(btn.dataset.min));
+    });
+
+    document.querySelectorAll('[data-mode]').forEach(btn => {
+      btn.addEventListener('click', () => setMode(btn.dataset.mode));
+    });
+
+    document.querySelectorAll('[data-noise]').forEach(btn => {
+      btn.addEventListener('click', () => setNoise(btn.dataset.noise));
+    });
+
+    messageText.addEventListener('input', syncMessage);
+    messageType.addEventListener('change', syncMessage);
+
+    document.getElementById('setCustomTimer').addEventListener('click', () => {
+      setTimer(document.getElementById('customMinutes').value);
+    });
+
+    document.getElementById('timerStartPause').addEventListener('click', toggleTimer);
+    document.getElementById('timerReset').addEventListener('click', resetTimer);
+    document.getElementById('timerPlus').addEventListener('click', () => {
+      timerRemaining += 60;
+      timerInitial += 60;
+      renderTimer();
+    });
+
+    document.getElementById('addPoint').addEventListener('click', () => { points += 1; renderPoints(); });
+    document.getElementById('removePoint').addEventListener('click', () => { points -= 1; renderPoints(); });
+    document.getElementById('resetPoints').addEventListener('click', () => { points = 0; renderPoints(); });
+
+    document.getElementById('saveStudents').addEventListener('click', saveStudents);
+    document.getElementById('drawStudent').addEventListener('click', drawStudent);
+    document.getElementById('resetDraws').addEventListener('click', () => {
+      drawn = [];
+      localStorage.setItem('drawnStudents', JSON.stringify(drawn));
+      document.getElementById('randomName').textContent = 'Klar?';
+      document.getElementById('drawInfo').textContent = 'Runden er nullstilt.';
+    });
+
+    document.getElementById('makePairs').addEventListener('click', () => makeGroups('pairs'));
+    document.getElementById('makeGroups4').addEventListener('click', () => makeGroups('groups4'));
+    document.getElementById('makeGroups6').addEventListener('click', () => makeGroups('sixgroups'));
+
+    document.getElementById('toggleUi').addEventListener('click', () => {
+      body.classList.toggle('hidden-ui');
+    });
+
+    window.addEventListener('hashchange', handleHash);
+
+    document.addEventListener('keydown', (event) => {
+      const tag = document.activeElement.tagName.toLowerCase();
+      const typing = ['input', 'textarea', 'select'].includes(tag);
+
+      if (event.key === 'Escape') {
+        body.classList.toggle('hidden-ui');
+        return;
+      }
+
+      if (typing) return;
+
+      if (event.key === ' ') {
+        event.preventDefault();
+        if (currentScreen !== 'timer') showScreen('timer');
+        toggleTimer();
+      }
+
+      const shortcuts = {
+        '1': 'start',
+        '2': 'message',
+        '3': 'timer',
+        '4': 'noise',
+        '5': 'workmode',
+        '6': 'done',
+        '7': 'cleanup',
+        '8': 'focus',
+        '9': 'random',
+        '0': 'blank'
+      };
+      if (shortcuts[event.key]) showScreen(shortcuts[event.key]);
+    });
+
+    // Last inn lagret innhold
+    const savedMessage = localStorage.getItem('messageText');
+    const savedType = localStorage.getItem('messageType');
+    const savedStudents = localStorage.getItem('students');
+    if (savedMessage !== null) messageText.value = savedMessage;
+    if (savedType !== null) messageType.value = savedType;
+    if (savedStudents !== null) document.getElementById('studentList').value = savedStudents;
+
+    syncMessage();
+    renderNoise();
+    renderWorkModes();
+    renderCleanup();
+    renderHelp();
+    renderTimer();
+    renderPoints();
+    updateStatus();
+    updateClock();
+    setInterval(updateClock, 1000);
+    handleHash();
+  </script>
+</body>
+</html>
